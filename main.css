@@ -1,0 +1,450 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/****************************************/
+body {
+	height: 100%;
+	/*font-family: Montserrat;*/
+  overflow: hidden;
+  font-family: 'Playfair Display', serif;
+}
+
+#titlePanel {
+	position: absolute;
+	top: 30px;
+	left: 10px;
+	font-size: 20px;
+	color: #fbae17;
+}
+
+#loadingPage {
+	position: relative; 
+  width: 100%;
+  height: 100vh;
+  background-color: black;
+  z-index: 500;
+}
+
+#loadingPage .wrap {
+  text-align: center;
+}
+#loadingPage .wrap img {
+  width: 100px;
+}
+
+.wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+}
+
+.text {
+  color: #fbae17;
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.bounceball {
+  position: relative;
+  display: inline-block;
+  height: 37px;
+  width: 15px;
+}
+.bounceball:before {
+  position: absolute;
+  content: '';
+  display: block;
+  top: 0;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: #fbae17;
+  -webkit-transform-origin: 50%;
+          transform-origin: 50%;
+  -webkit-animation: bounce 500ms alternate infinite ease;
+          animation: bounce 500ms alternate infinite ease;
+}
+
+@-webkit-keyframes bounce {
+  0% {
+    top: 30px;
+    height: 5px;
+    border-radius: 60px 60px 20px 20px;
+    -webkit-transform: scaleX(2);
+            transform: scaleX(2);
+  }
+  35% {
+    height: 15px;
+    border-radius: 50%;
+    -webkit-transform: scaleX(1);
+            transform: scaleX(1);
+  }
+  100% {
+    top: 0;
+  }
+}
+
+@keyframes bounce {
+  0% {
+    top: 30px;
+    height: 5px;
+    border-radius: 60px 60px 20px 20px;
+    -webkit-transform: scaleX(2);
+            transform: scaleX(2);
+  }
+  35% {
+    height: 15px;
+    border-radius: 50%;
+    -webkit-transform: scaleX(1);
+            transform: scaleX(1);
+  }
+  100% {
+    top: 0;
+  }
+}
+
+.panel {
+  position: absolute;
+  padding: 30px;
+  background-color: rgba(255, 255, 255, 0.6);
+  transition: all 1s;
+}
+
+#info {
+  left: 0;
+  top: 100px;
+  width: 250px;
+}
+
+#customisePanel {
+  right: 0;
+  top: 100px;
+  width: 250px;
+  padding-left: 50px;
+}
+
+#buyPanel {
+  width: 100%;
+  bottom: 0;
+}
+
+h1 {
+  font-size: 2em;
+  /*margin: 20px 0;*/
+  line-height: 1.5em;
+}
+h2 {
+  font-size: 1em;
+  /*margin: 8px 0;*/
+  line-height: 1.5em;
+}
+p {
+  font-size: 0.85em;
+  line-height: 1.25em;
+}
+
+#info p {
+  font-style: italic;
+}
+
+#info h2:first-of-type {
+  margin-top: 10px;
+}
+#info h2:last-of-type {
+  margin-bottom: 10px;
+}
+
+#info p:first-of-type {
+  margin-top: 20px;
+}
+
+.toggleClosingButton {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  
+  -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+  background: rgba(255,255,255,1);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+#info .toggleClosingButton {
+  right: -25px;
+}
+#customisePanel .toggleClosingButton {
+  left: -25px;
+  top: 100px;
+}
+
+.toggleClosingButton input {
+  display: none;
+}
+
+.toggleClosingButton label {
+    background: rgba(255,255,255,0);
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: block;
+    z-index: 2;
+    cursor: pointer;
+}
+.toggleClosingButton .btmImg {
+  position: relative;
+  top: -100%;
+  display: block;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+.toggleClosingButton #closeInfo ~ .btmImg::after {
+    /*content: "😃";*/
+    content:"";
+    background-image: url("tex/arrow.png");
+    background-size: 25px 25px;
+    background-position: center;
+    width: 100%;
+    height: 100%;
+    display: block;
+    background-repeat: no-repeat;
+    transform: rotate(90deg);
+    transition: all 1s;
+    /*font-size: 25px;
+    line-height: 50px;*/
+}
+.toggleClosingButton #closeInfo:checked ~ .btmImg::after {
+    /*content: "😩";*/
+    transform: rotate(270deg);
+}
+
+.toggleClosingButton #closeCustomise ~ .btmImg::after {
+    /*content: "😃";*/
+    content:"";
+    background-image: url("tex/arrow.png");
+    background-size: 25px 25px;
+    background-position: center;
+    width: 100%;
+    height: 100%;
+    display: block;
+    background-repeat: no-repeat;
+    transform: rotate(270deg);
+    transition: all 1s;
+    /*font-size: 25px;
+    line-height: 50px;*/
+}
+.toggleClosingButton #closeCustomise:checked ~ .btmImg::after {
+    /*content: "😩";*/
+    transform: rotate(90deg);
+}
+
+#grid {
+  width: 100%;
+  height: 100%;
+  margin-top: 30px;
+}
+
+.customTex {
+  width: 50px;
+  height: 50px;
+  background: blue;
+  display: inline-block;
+  margin: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0,0,0, 1);
+  transition: all 0.5s;
+  cursor: pointer;
+  border: 5px solid rgba(0,0,0,0);
+}
+
+.customTex:hover {
+  box-shadow: 0 0 20px rgba(0,0,0, 1);
+}
+
+.customTex:nth-child(1) { background-image: url("tex/cloth/beige_cloth.jpg"); }
+.customTex:nth-child(2) { background-image: url("tex/cloth/beige_cloth_01.jpg"); }
+.customTex:nth-child(3) { background-image: url("tex/cloth/black_cloth.jpg"); }
+.customTex:nth-child(4) { background-image: url("tex/cloth/blue_cloth.jpg"); }
+.customTex:nth-child(5) { background-image: url("tex/cloth/gray_cloth.jpg"); }
+.customTex:nth-child(6) { background-image: url("tex/cloth/green_cloth.jpg"); }
+.customTex:nth-child(7) { background-image: url("tex/cloth/orange_cloth.jpg"); }
+.customTex:nth-child(8) { background-image: url("tex/cloth/white_cloth.jpg"); }
+
+.customTexSel {
+  box-shadow: 0 0 20px rgba(0,0,0, 1);
+  border: 5px solid #ff8400;
+}
+
+#buyPanel {
+  padding: 10px;
+  text-align: center;
+  box-sizing: border-box;
+}
+#buyBtn {
+  padding: 10px;
+  font-size: 1.2em;
+  background-color: white;
+  border-radius: 25px;
+  width: 150px;
+  border: 2px solid black;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+#buyBtn:hover {
+  background-color: #ff8400;
+}
+
+#buyBtn::after{
+  content: "";
+  background-image: url("tex/add-cart.png");
+  background-size: 20px 20px;
+  background-position: center;
+  width: 0px;
+  height: 20px;
+  display: inline-block;
+  background-repeat: no-repeat;
+  padding-left: 0px;
+  /*transform: rotate(90deg);*/
+  transition: all 1s;
+}
+
+#buyBtn:hover::after {
+  padding-left: 20px;
+  width: 20px;
+}
+
+.buyPanelEl {
+  float: right;
+}
+
+#price {
+  font-size: 1.2em;
+  display: inline-block;
+  line-height: 2.3em;
+  margin: 0px 30px;
+}
+
+#disclaimer {
+  display: block;
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  text-align: left;
+  font-size: 0.75em;
+  color: #666;
+}
+
+#playControl {
+  /*background-color: blue;*/
+  width: 45px;
+  height: 45px;
+  left: 50%;
+  position: relative;
+  transform: translateX(-50%);
+  background-image: url("tex/stop-button.png");
+  background-size:contain;
+  opacity: 0.4;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+#playControl:hover {
+  opacity: 1;
+}
+
+#logo {
+  background-image: url("tex/logo.png");
+  background-size: cover;
+  display: block;
+  width: 60px;
+  height: 60px;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  opacity: 0.75;
+}
+
+
+
+@media only screen and (max-width: 600px) {
+  .buyPanelEl, #playControl, #disclaimer {
+    float: none;
+  }
+
+  #buyPanel {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #playControl {
+    order: 1;
+  }
+  #price {
+    order: 2;
+  }
+  #buyBtn {
+    order: 3;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  #disclaimer {
+    order: 4;
+    position: relative;
+    margin-top: 20px;
+  }
+
+  #customisePanel, #info {
+    top: 50px;
+  }
+
+  #logo {
+    width: 40px;
+    height: 40px;
+    top: 5px;
+    left: 5px;
+  }
+}

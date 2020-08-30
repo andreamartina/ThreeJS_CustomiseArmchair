@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>AM - Armchair</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+		<link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
+		<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap" rel="stylesheet">
+
+	</head>
+	<body>
+
+		<div id="loadingPage">
+			<div class="wrap">
+				<img src="tex/logo.png">
+			  	<div class="loading">
+			    	<div class="bounceball"></div>
+			    	<div class="text">NOW LOADING... <span id="loadingPerc"></span></div>
+			  	</div>
+			</div>
+			<span id="platform"></span>
+		</div>
+
+<!--
+		<div id="titlePanel">ARMCHAIR</div>
+-->
+		<div id="logo"></div>
+
+		<div id="info" class="panel">
+
+			<div class="toggleClosingButton">
+			    <label for="closeInfo"></label>
+    			<input type="checkbox" id="closeInfo" onclick="closePanelCheckBox(this, true)">
+				<div class="btmImg"></div>
+			</div>
+
+			<h1>Husk</h1>
+
+			<h2>Designer: Patricia Urquiola</h2>
+			<h2>Typology: Armchairs</h2>
+			<h2>Collection: B&B Italia</h2>
+			<h2>Year: 2011</h2>
+
+			<p>Those who look at a sofa must visually perceive a sense of both mental and physical comfort.” Patricia Urquiola has conveyed this concept to the armchair Husk by designing a stiff body made of Hirek ® that contains a soft cushion divided into portions, which seem to underscore its ergonomic profile. It is endowed with an original spirit that merges with various styles. Three cushion types: standard, which is large and enveloping, or headrest. With our without an ottoman as footrest.</p>
+
+		</div>
+
+		<div id="customisePanel" class="panel">
+
+			<div class="toggleClosingButton">
+			    <label for="closeCustomise"></label>
+    			<input type="checkbox" id="closeCustomise" onclick="closePanelCheckBox(this, false)">
+				<div class="btmImg"></div>
+			</div>
+
+			<h1>Customise your armchair:</h1>
+
+			<div id="grid">
+				<div id="b_beige" class="customTex customTexSel"></div>
+				<div id="b_beige1" class="customTex"></div>
+				<div id="b_black" class="customTex"></div>
+				<div id="b_blue" class="customTex"></div>
+				<div id="b_gray" class="customTex"></div>
+				<div id="b_green" class="customTex"></div>
+				<div id="b_orange" class="customTex"></div>
+				<div id="b_white" class="customTex"></div>
+			</div>
+		</div>
+
+		<div id="buyPanel" class="panel">
+			<div id="buyBtn" class="buyPanelEl">Add to cart</div>
+			<span id="price" class="buyPanelEl">£1999.99</span>
+
+			<div id="playControl"></div>
+
+			<span id="disclaimer">This page is a demo, it is not a real ecommerce page. <br />
+			Some of the 3D models in this page have been downloaded from www.turbosquid.com</span>
+		</div>
+
+		<script type="text/javascript">
+
+			function closePanelCheckBox(elem, isLeft) {
+				var panel = elem.closest(".panel");
+
+				if(elem.checked){
+					if(isLeft){
+						panel.style.left = -(panel.getBoundingClientRect().width - 30) + "px";
+					}
+					else {
+						panel.style.right = -(panel.getBoundingClientRect().width - 30) + "px";
+					}
+				}
+				else {
+					if(isLeft){
+						panel.style.left = "0px";
+					}
+					else {
+						panel.style.right = "0px";
+					}
+				}
+			}
+
+			var customiseButtons = document.getElementsByClassName("customTex");
+
+			Array.prototype.forEach.call(customiseButtons, child => {
+			  child.onclick = changeTex;
+			});
+
+			function changeTex(e) {
+
+				Array.prototype.forEach.call(customiseButtons, child => {
+				  //child.style.borderColor = "rgba(0,0,0,0)";
+				  child.classList.remove("customTexSel");
+				});
+
+				e.srcElement.classList.add("customTexSel");
+			}
+
+			function isMobileDevice() {
+			    return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+			};
+
+			var isMobile = isMobileDevice();
+
+			if(isMobile){
+				document.getElementById('info').style.left = -(document.getElementById('info').getBoundingClientRect().width - 30) + "px";
+				document.getElementById('closeInfo').checked = true;
+
+				document.getElementById('customisePanel').style.right = -(document.getElementById('customisePanel').getBoundingClientRect().width - 30) + "px";
+				document.getElementById('closeCustomise').checked = true;
+			}
+
+		</script>
+
+		<script type="module">
+
+			import * as THREE from './jsm/three.module.js';
+			import { OrbitControls } from './jsm/OrbitControls.js';
+			import { GLTFLoader } from './jsm/GLTFLoader.js';
+
+			var scene, camera, renderer, canvas, controls, container;
+			var loaderManager;
+			var loadingPage;
+			var textureEquirec;
+
+			var loadedModel;
+			var selectedMat;
+
+			var M_Cloth_Beige, M_Cloth_Beige_2, M_Cloth_Black, M_Cloth_Blue, M_Cloth_Gray, M_Cloth_Green, M_Cloth_Orange, M_Cloth_White;
+
+			var changeTexBtns = document.getElementsByClassName("customTex");
+			Array.prototype.forEach.call(changeTexBtns, child => {
+				  child.addEventListener( 'click', changeMat, false );
+			});
+
+			var playControl = document.getElementById("playControl");
+			playControl.addEventListener( 'click', controlPlay, false );
+
+			init();
+			animate();
+
+			function init() {
+
+				loadingPage = document.getElementById("loadingPage");
+
+				// SCENE
+				scene = new THREE.Scene();
+				//scene.background = new THREE.Color( 0x000000 );
+
+				//CAMERA
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 5000 );
+				camera.position.set(5, 5, 10);
+				//camera.lookAt(0, 10, 0);
+				//camera.lookAt(scene.position);
+				scene.add( camera );
+
+				//RENDERER
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setClearColor( 0x2a87bc, 1);
+				renderer.gammaFactor = 2.2;
+				renderer.physicallyCorrectLights = true;
+				renderer.shadowMap.enabled = true;
+				renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+				renderer.outputEncoding = THREE.sRGBEncoding;
+				document.body.appendChild( renderer.domElement );
+
+				//CANVAS
+				canvas = document.getElementsByTagName("canvas")[0];
+				canvas.style.display = "none";
+
+				//CONTAINER
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+				container.appendChild( renderer.domElement );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+				//CONTROLS
+				controls = new OrbitControls(camera, renderer.domElement);
+				controls.autoRotate = true;
+				controls.enablePan = false;
+				controls.autoRotateSpeed = 1;
+
+				// LIGHTS
+				var directionalLight = new THREE.DirectionalLight( 0xffffff, 3 ); //0xfff9b5
+				directionalLight.castShadow = true;
+				directionalLight.position.set( 5, 5, 5 );
+				directionalLight.shadow.mapSize.width = 2048;  
+				directionalLight.shadow.mapSize.height = 2048; 
+				directionalLight.shadow.bias = -0.0000001;
+				//var directionalLightTarget = new THREE.Object3D();
+				//directionalLightTarget.position.set(100, 0, -100);
+				//scene.add(directionalLightTarget);
+				//directionalLight.target = directionalLightTarget;
+				scene.add( directionalLight );
+/*
+				var helper = new THREE.DirectionalLightHelper( directionalLight );
+				scene.add( helper );
+*/
+				const hemisphereLight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
+				scene.add( hemisphereLight );
+
+				//LOADER MANAGER
+				loaderManager = new THREE.LoadingManager();
+				loaderManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
+					console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+				};
+				loaderManager.onLoad = function ( ) {
+					console.log( 'Loading complete!');
+					canvas.style.display = "block";
+					loadingPage.style.display = "none"; 
+				};
+				loaderManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
+					console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+					document.getElementById("loadingPerc").innerHTML = itemsLoaded + ' of ' + itemsTotal + ' files.'; 
+				};
+				loaderManager.onError = function ( url ) {
+					console.log( 'There was an error loading ' + url );
+				};
+/*
+				envSphereMap = new THREE.TextureLoader().load( 'tex/wooden_lounge_2k.jpg' );
+				envSphereMap.mapping = THREE.SphericalReflectionMapping;
+				envSphereMap.encoding = THREE.sRGBEncoding;
+*/
+				textureEquirec = new THREE.TextureLoader().load( 'tex/wooden_lounge_2k.jpg' );
+				textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
+				textureEquirec.encoding = THREE.sRGBEncoding;
+
+				var T_Parquet_Albedo = new THREE.TextureLoader().load("tex/TexturesCom_Wood_ParquetHerringbone7_1K_albedo.jpg");
+				var T_Parquet_BN = new THREE.TextureLoader().load("tex/TexturesCom_Wood_ParquetHerringbone7_1K_bn.jpg");
+				T_Parquet_Albedo.repeat = T_Parquet_BN.repeat = new THREE.Vector2(2, 2);
+				T_Parquet_Albedo.wrapS = T_Parquet_Albedo.wrapT = T_Parquet_BN.wrapS = T_Parquet_BN.wrapT = THREE.RepeatWrapping;
+				var M_Parquet = new THREE.MeshStandardMaterial({
+					color: 0xffe1be,
+					map: T_Parquet_Albedo,
+					bumpMap: T_Parquet_BN,
+					bumpScale: 0.002,
+					roughness: 0.35,
+					roughnessMap: T_Parquet_BN,
+					envMap: textureEquirec,
+					envMapIntensity: 0.1,
+					metalness: 0.15
+				});
+
+				var T_Copper_Albedo = new THREE.TextureLoader().load("tex/cooper.jpg");
+				var T_Copper_BN = new THREE.TextureLoader().load("tex/cooper_anisotropy.jpg");
+				//T_Parquet_Albedo.repeat = T_Parquet_BN.repeat = new THREE.Vector2(2, 2);
+				//T_Parquet_Albedo.wrapS = T_Parquet_Albedo.wrapT = T_Parquet_BN.wrapS = T_Parquet_BN.wrapT = THREE.RepeatWrapping;
+				var M_Copper = new THREE.MeshStandardMaterial({
+					color: 0xffafaf,
+					map: T_Copper_Albedo,
+					roughness: 0.1,
+					metalness: 0.5,
+					envMap: textureEquirec,
+					bumpMap: T_Copper_BN,
+					bumpScale: 0.001
+				});
+
+				var M_BlackMetal = new THREE.MeshStandardMaterial({
+					color: 0x000000,
+					roughness: 0.1,
+					metalness: 0.9,
+					envMap: textureEquirec
+				});
+
+				var T_Vase_Albedo = new THREE.TextureLoader().load("tex/vase_gray.jpg");
+				var T_Vase_BN = new THREE.TextureLoader().load("tex/vase_gray_r.jpg");
+				//T_Parquet_Albedo.repeat = T_Parquet_BN.repeat = new THREE.Vector2(2, 2);
+				//T_Parquet_Albedo.wrapS = T_Parquet_Albedo.wrapT = T_Parquet_BN.wrapS = T_Parquet_BN.wrapT = THREE.RepeatWrapping;
+				var M_Vase = new THREE.MeshStandardMaterial({
+					color: 0x999999,
+					map: T_Vase_Albedo,
+					roughness: 0.1,
+					metalness: 0.5,
+					envMap: textureEquirec,
+					bumpMap: T_Vase_BN,
+					bumpScale: 0.003
+				});
+
+				var T_Armchair_Wood = new THREE.TextureLoader().load("tex/wood_beige.jpg");
+				T_Armchair_Wood.repeat = new THREE.Vector2(2, 2);
+				T_Armchair_Wood.wrapS = T_Armchair_Wood.wrapT = THREE.RepeatWrapping;
+				var M_Armchair_Wood = new THREE.MeshPhongMaterial ( {
+					color: 0xffafaf,
+					map: T_Armchair_Wood,
+					//shininess: 80,
+					//envMap: textureEquirec,
+					//roughness: 1
+					name: "M_Armchair_Wood"
+				} );
+
+				var M_Armchair_Base_Dark = new THREE.MeshStandardMaterial({
+					color:0x150a02,
+					roughness: 0.1,
+					metalness: 0.7,
+					envMap: textureEquirec
+				});
+
+				var T_Noise = new THREE.TextureLoader().load("tex/T_Noise.jpg");
+				T_Noise.repeat = new THREE.Vector2(2, 2);
+				T_Noise.wrapS = T_Noise.wrapT = THREE.RepeatWrapping;
+
+				var M_Lamp_Metal_Light = new THREE.MeshStandardMaterial({
+					color:0xB99562,
+					roughness: 0.15,
+					metalness: 0.7,
+					envMap: textureEquirec,
+					bumpMap: T_Noise,
+					bumpScale: 0.0001
+				});
+
+				var M_Lamp_Metal_Black = new THREE.MeshStandardMaterial({
+					color: 0x000000,
+					roughness: 0.05,
+					metalness: 0.8,
+					envMap: textureEquirec
+				});
+
+				var M_Lamp_Metal_White = M_Lamp_Metal_Black.clone();
+				M_Lamp_Metal_White.color.setHex(0xffffff);
+
+				var M_Lamp_Cable = new THREE.MeshStandardMaterial({
+					color: 0x000000,
+					roughness: 0.2,
+					envMap: textureEquirec
+				});
+
+				// CLOTH MATS
+
+				var T_Cloth_Beige = new THREE.TextureLoader().load("tex/cloth/beige_cloth.jpg");
+				T_Cloth_Beige.repeat = new THREE.Vector2(10, 10);
+				T_Cloth_Beige.wrapS = T_Cloth_Beige.wrapT = THREE.RepeatWrapping;
+
+				M_Cloth_Beige = new THREE.MeshStandardMaterial({
+					color: 0xaaaaaa,
+					map: T_Cloth_Beige,
+					bumpMap: T_Cloth_Beige,
+					bumpScale: 0.01,
+					name: "M_Cloth_Beige"
+				});
+
+				var T_Cloth_Beige_2 = new THREE.TextureLoader().load("tex/cloth/beige_cloth_01.jpg");
+				T_Cloth_Beige_2.repeat = new THREE.Vector2(10, 10);
+				T_Cloth_Beige_2.wrapS = T_Cloth_Beige_2.wrapT = THREE.RepeatWrapping;
+
+				M_Cloth_Beige_2 = M_Cloth_Beige.clone();
+				M_Cloth_Beige_2.map = T_Cloth_Beige_2;
+				M_Cloth_Beige_2.name = "M_Cloth_Beige_2";
+
+				var T_Cloth_Gray = new THREE.TextureLoader().load("tex/cloth/gray_cloth.jpg");
+				T_Cloth_Gray.repeat = new THREE.Vector2(10, 10);
+				T_Cloth_Gray.wrapS = T_Cloth_Gray.wrapT = THREE.RepeatWrapping;
+
+				M_Cloth_Gray = M_Cloth_Beige.clone();
+				M_Cloth_Gray.map = T_Cloth_Gray;
+				M_Cloth_Gray.name = "M_Cloth_Gray";
+
+				var T_Cloth_Green = new THREE.TextureLoader().load("tex/cloth/green_cloth.jpg");
+				T_Cloth_Green.repeat = new THREE.Vector2(10, 10);
+				T_Cloth_Green.wrapS = T_Cloth_Green.wrapT = THREE.RepeatWrapping;
+
+				M_Cloth_Green = M_Cloth_Beige.clone();
+				M_Cloth_Green.map = T_Cloth_Green;
+				M_Cloth_Green.name = "M_Cloth_Green";
+
+				var T_Cloth_Orange = new THREE.TextureLoader().load("tex/cloth/orange_cloth.jpg");
+				T_Cloth_Orange.repeat = new THREE.Vector2(10, 10);
+				T_Cloth_Orange.wrapS = T_Cloth_Orange.wrapT = THREE.RepeatWrapping;
+
+				M_Cloth_Orange = M_Cloth_Beige.clone();
+				M_Cloth_Orange.map = T_Cloth_Orange;
+				M_Cloth_Orange.name = "M_Cloth_Orange";
+
+				var T_Cloth_White = new THREE.TextureLoader().load("tex/cloth/white_cloth.jpg");
+				T_Cloth_White.repeat = new THREE.Vector2(10, 10);
+				T_Cloth_White.wrapS = T_Cloth_White.wrapT = THREE.RepeatWrapping;
+
+				M_Cloth_White = M_Cloth_Beige.clone();
+				M_Cloth_White.map = T_Cloth_White;
+				M_Cloth_White.name = "M_Cloth_White";
+
+				var T_Cloth_Black = new THREE.TextureLoader().load("tex/cloth/black_cloth.jpg");
+				T_Cloth_Black.repeat = new THREE.Vector2(10, 10);
+				T_Cloth_Black.wrapS = T_Cloth_Black.wrapT = THREE.RepeatWrapping;
+
+				M_Cloth_Black = M_Cloth_Beige.clone();
+				M_Cloth_Black.map = T_Cloth_Black;
+				M_Cloth_Black.bumpMap = T_Cloth_Black;
+				M_Cloth_Black.name = "M_Cloth_Black";
+
+				var T_Cloth_Blue = new THREE.TextureLoader().load("tex/cloth/blue_cloth.jpg");
+				T_Cloth_Blue.repeat = new THREE.Vector2(10, 10);
+				T_Cloth_Blue.wrapS = T_Cloth_Blue.wrapT = THREE.RepeatWrapping;
+
+				M_Cloth_Blue = M_Cloth_Beige.clone();
+				M_Cloth_Blue.map = T_Cloth_Blue;
+				M_Cloth_Blue.bumpMap = T_Cloth_Blue;
+				M_Cloth_Blue.name = "M_Cloth_Blue";
+
+				var glbLoader = new GLTFLoader(loaderManager);
+				glbLoader.load("mod/armchair1.glb", loading);
+				function loading(glb) {
+					var model = glb.scene;
+					model.position.set(0, 0, 0);
+					model.scale.set(0.02, 0.02, 0.02);
+
+					replaceMaterial(model, "M_Floor", M_Parquet);
+					replaceMaterial(model, "maincopper", M_Copper);
+					replaceMaterial(model, "blenddarkmetal", M_BlackMetal);
+					replaceMaterial(model, "vase gray", M_Vase);
+					replaceMaterial(model, "lightwood", M_Armchair_Wood);
+					replaceMaterial(model, "blackplastic01", M_Armchair_Base_Dark);
+					replaceMaterial(model, "Stilnovo_Tripod_BlackSteel", M_Lamp_Metal_Light);
+					replaceMaterial(model, "Stilnovo_Tripod_Ext", M_Lamp_Metal_Black);
+					replaceMaterial(model, "Stilnovo_Tripod_Int", M_Lamp_Metal_White);
+					replaceMaterial(model, "Stilnovo_Tripod_Cable", M_Lamp_Cable);
+
+					replaceMaterial(model, "beigecloth", M_Cloth_Beige);
+					selectedMat = M_Cloth_Beige.name;
+					
+					setShadowInAllChildren(model.children, true, true);
+
+					loadedModel = model;
+
+					scene.add(model);
+				}
+			}
+
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			function animate() {
+				
+
+				renderer.render( scene, camera );
+
+				update();
+
+				requestAnimationFrame( animate );
+			}
+
+			function update() {
+				controls.update();
+
+			}
+
+			function findObjsWithMaterial(obj, matName)
+			{
+				var array = [];
+    			for ( var i = 0; i < obj.children.length; i++ ) 
+    			{
+    				if(obj.children[i].material && obj.children[i].material.name === matName ) {
+						array.push(obj.children[i]);
+    				}
+
+      				if(obj.children[i].children.length > 0){
+        				var array1 = findObjsWithMaterial(obj.children[i], matName);
+        				for(var k = 0; k < array1.length; k++){
+          					array.push(array1[k]);
+        				}
+      				}
+    			}
+    			return array;
+  			}
+
+			function replaceMaterial(obj, matName, newMat) {
+  				var array = findObjsWithMaterial(obj, matName);
+  				if(array.length > 0){
+  					for(var k = 0; k < array.length; k++){
+          				array[k].material = newMat;
+        			}
+  				}
+  				else {
+  					console.log("No matching material found!");
+  				}
+  			}
+
+  			function setShadowInAllChildren(array, cast, receive) {
+  				if(array.castShadow){
+  					array.castShadow = cast;
+  					array.receiveShadow = receive
+  				}
+
+    			for ( var i = 0; i < array.length; i++ ) 
+    			{
+      				array[i].castShadow = cast;
+      				array[i].receiveShadow = receive;
+      				if(array[i].children.length > 0)
+        				setShadowInAllChildren(array[i].children, cast, receive);
+    			}
+  			}
+
+  			function changeMat(e){
+  				switch(e.srcElement.id){
+  					case "b_beige":
+					    replaceMaterial(loadedModel, selectedMat, M_Cloth_Beige);
+					    selectedMat = M_Cloth_Beige.name;
+					    break;
+					case "b_beige1":
+					    replaceMaterial(loadedModel, selectedMat, M_Cloth_Beige_2);
+					    selectedMat = M_Cloth_Beige_2.name;
+					    break;
+					case "b_gray":
+					    replaceMaterial(loadedModel, selectedMat, M_Cloth_Gray);
+					    selectedMat = M_Cloth_Gray.name;
+					    break;
+					case "b_green":
+					    replaceMaterial(loadedModel, selectedMat, M_Cloth_Green);
+					    selectedMat = M_Cloth_Green.name;
+					    break;
+					case "b_orange":
+					    replaceMaterial(loadedModel, selectedMat, M_Cloth_Orange);
+					    selectedMat = M_Cloth_Orange.name;
+					    break;
+					case "b_white":
+					    replaceMaterial(loadedModel, selectedMat, M_Cloth_White);
+					    selectedMat = M_Cloth_White.name;
+					    break;
+					case "b_black":
+					    replaceMaterial(loadedModel, selectedMat, M_Cloth_Black);
+					    selectedMat = M_Cloth_Black.name;
+					    break;
+					case "b_blue":
+					    replaceMaterial(loadedModel, selectedMat, M_Cloth_Blue);
+					    selectedMat = M_Cloth_Blue.name;
+					    break;
+  				}
+  			};
+
+  			function controlPlay() {
+  				controls.autoRotate = !controls.autoRotate;
+  				if(controls.autoRotate)
+  				{
+  					playControl.style.backgroundImage = "url('tex/stop-button.png')";
+  				}
+  				else {
+  					playControl.style.backgroundImage = "url('tex/play-button.png')";
+  				}
+  			}
+
+		</script>
+	</body>
+</html>
